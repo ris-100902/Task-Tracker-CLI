@@ -37,16 +37,29 @@ if (fs.existsSync('./tasks.json')) allTasks = JSON.parse(fs.readFileSync('./task
 
 const command = process.argv.slice(2);
 if (command[0] === "add") {
-    const newTask = allTasks.length > 0 ? new Task(allTasks[allTasks.length - 1].id + 1, command[1]) : new Task(1, command[1]);
-    allTasks.push(newTask);
+    if (!command[1] || command.length > 2) console.log("Incorrect arguments.\nTo add a task write 'add' and then give description only in double quotes.");
+    else {
+        const newTask = allTasks.length > 0 ? new Task(allTasks[allTasks.length - 1].id + 1, command[1]) : new Task(1, command[1]);
+        allTasks.push(newTask);
+    }
 }
-else if (command[0] === "update")  Task.updateDescription(command[1], command[2]);
-else if (command[0] === "delete")  Task.deleteTask(command[1]);
-else if (command[0] === "mark-in-progress") Task.updateProgress("in-progress", command[1]);
-else if (command[0] === "mark-done") Task.updateProgress("done", command[1]);
-else if (command[0] === "list"){
+else if (command[0] === "update") {
+    if (!command[1] || !command[2] || command.length > 3) console.log("Incorrect arguments.\nTo update a task write 'update' and then give id and description.");
+    else Task.updateDescription(command[1], command[2]);
+}
+else if (command[0] === "delete") {
+    if (!command[1] || command.length > 2) console.log("Incorrect arguments.\nTo delete a task write 'dekete' and then give id of task.");
+    else Task.deleteTask(command[1]);
+}
+else if (command[0] === "mark-in-progress" || command[0] === "mark-done") {
+    if (!command[1] || command.length > 2) console.log("Incorrect arguments.\nTo update status of a task write 'mark-in-progress' or 'mark-done' and then give id.");
+    else Task.updateProgress(command[0].slice(5), command[1]);
+}
+else if (command[0] === "list") {
     if (process.argv.length == 3) console.log(allTasks);
+    else if (command.length > 2) console.log("Incorrect Arguments");
     else if (command[1] === "done" || command[1] === "in-progress" || command[1] === "pending") Task.listTasksByStatus(command[1]);
 }
+else console.log("Command not Found");
 
 fs.writeFileSync('./tasks.json', JSON.stringify(allTasks));
